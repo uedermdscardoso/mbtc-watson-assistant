@@ -13,26 +13,39 @@ public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	private String message;
+	private String text;
 	
 	@NotNull
 	private Boolean execAudio;
 	
-	public Message(String message, Boolean execAudio) {
-		this.message = message;
+	@NotNull
+	private String sessionId;
+	
+	public Message() {
+		
+	}
+	
+	public Message(String text, Boolean execAudio) {
+		this.text = text;
 		this.execAudio = execAudio;
 	}
 
-	public String getMessage() {
-		return message;
+	public String getText() {
+		return text;
 	}
-	public void setMessage(String message) {
-		this.message = message;
+	public void setText(String text) {
+		this.text = text;
 	}
 	public Boolean getExecAudio() {
 		return execAudio;
 	}
 	public void setExecAudio(Boolean execAudio) {
 		this.execAudio = execAudio;
+	}
+	public String getSessionId() {
+		return sessionId;
+	}
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 }

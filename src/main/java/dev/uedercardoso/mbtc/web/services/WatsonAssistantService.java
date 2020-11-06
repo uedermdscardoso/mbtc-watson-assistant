@@ -50,17 +50,28 @@ public class WatsonAssistantService {
 	@Value("${watson.SpeechToText.serviceUrl}")
 	public String speechToTextServiceUrl;
 	
-	
-	//Using Assistant v2
-	public MessageResponse getRobotText(WatsonAssistant virtualAssistant) {
-		
+
+	public Assistant authenticate(WatsonAssistant virtualAssistant) {
 		IamAuthenticator authenticator = new IamAuthenticator(virtualAssistant.getApiKey());
 		Assistant service = new Assistant(virtualAssistant.getDate(), authenticator);
 		service.setServiceUrl(virtualAssistant.getServiceUrl());
-
+		return service;
+	}
+	
+	public String createSession(WatsonAssistant virtualAssistant) {
+		Assistant service = authenticate(virtualAssistant);
+		
 		CreateSessionOptions sessionOptions = new CreateSessionOptions.Builder(virtualAssistant.getAssistantId()).build();
 		SessionResponse sessionResponse = service.createSession(sessionOptions).execute().getResult();
-		String sessionId = sessionResponse.getSessionId();
+		
+		return sessionResponse.getSessionId();
+		
+	}
+	
+	//Using Assistant v2
+	public MessageResponse getRobotText(String sessionId, WatsonAssistant virtualAssistant) {
+		
+		Assistant service = authenticate(virtualAssistant);
 		
 		MessageInput input = new MessageInput.Builder()
 		  .messageType("text")
@@ -134,6 +145,26 @@ public class WatsonAssistantService {
 						
 						return text.getString("text");
 						
+					} else if(text.has("suggestions")) {
+						
+						JSONArray vector = text.getJSONArray("suggestions");
+						
+						if(vector.length() > 0) {
+							JSONObject obj = vector.getJSONObject(0);
+							
+							
+							if(obj.has("output")) {
+								output = obj.getJSONObject("output");
+								
+								if(output.has("generic")) {
+									generic = output.getJSONArray("generic");
+									if(!generic.isEmpty()) {
+										text = generic.getJSONObject(0);
+										return text.getString("text");			
+									}
+								}
+							}
+						}
 					}
 				}
 			}

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,8 @@ import dev.uedercardoso.mbtc.web.services.WatsonAssistantService;
 @RequestMapping("/assistant")
 public class WatsonAssistantController {
 
+	final String ASSISTANT_NAME = "Sofia";
+	
 	@Value("${watson.assistant.apiKey}")
 	public String assistantApiKey;
 	
@@ -35,10 +38,25 @@ public class WatsonAssistantController {
 	public String assistantId;
 	
 	@Value("${watson.assistant.serviceUrl}")
-	public static String assistantServiceUrl;
+	public String assistantServiceUrl;
 	
 	@Autowired
 	private WatsonAssistantService assistantService;
+	
+	@GetMapping("/session")
+	public ResponseEntity<String> createSession() {
+		try {
+			String today = DateFormatUtils.format(Calendar.getInstance().getTime(),"yyyy-MM-dd");
+			WatsonAssistant sofia = new WatsonAssistant(ASSISTANT_NAME, assistantApiKey, assistantId, "", today, assistantServiceUrl);
+			
+			String sessionId = this.assistantService.createSession(sofia);
+			
+			return ResponseEntity.ok(sessionId);
+			
+		} catch(Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
 	
 	//Using Assistent V2 - Watson Assistant
 	@PostMapping("/conversation")
@@ -46,15 +64,12 @@ public class WatsonAssistantController {
 		try {
 	
 			JSONObject result = new JSONObject();
-			String robotText = "";
 			String today = DateFormatUtils.format(Calendar.getInstance().getTime(),"yyyy-MM-dd");
 			
-			WatsonAssistant sofia = new WatsonAssistant("Sofia", assistantApiKey, assistantId, message.getMessage(), today, assistantServiceUrl);
+			WatsonAssistant sofia = new WatsonAssistant(ASSISTANT_NAME, assistantApiKey, assistantId, message.getText(), today, assistantServiceUrl);
+			MessageResponse response = this.assistantService.getRobotText(message.getSessionId(), sofia);
 			
-			//Using Watson Assistant
-			MessageResponse response = this.assistantService.getRobotText(sofia);
-			
-			robotText = this.assistantService.getText(response.toString());	
+			String robotText = this.assistantService.getText(response.toString());	
 			result.put("text", robotText);
 			
 			if(message.getExecAudio()) {
@@ -69,7 +84,7 @@ public class WatsonAssistantController {
 		}
 	}
 	
-	@PostMapping("/speech-to-text")
+	/*@PostMapping("/speech-to-text")
 	public ResponseEntity<String> convertSpeechToText(){
 		try {
 			String teste = this.assistantService.convertSpeechToText();
@@ -78,10 +93,6 @@ public class WatsonAssistantController {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().build();
 		}
-	}
-	
-	//https://cloud.ibm.com/apidocs/assistant/assistant-v2?code=java
-	//https://cloud.ibm.com/apidocs/text-to-speech/text-to-speech?code=java
-	//https://cloud.ibm.com/apidocs/speech-to-text/speech-to-text?code=java
+	}*/
 	
 }
