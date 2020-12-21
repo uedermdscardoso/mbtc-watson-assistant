@@ -4,7 +4,7 @@
   <artifactId>mbtc-watson-assistant-server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
-  <name>Maratona Behing The Code 2020</name>
+  <name>MBTC 2020 - Watson Assistant</name>
 	
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -64,7 +64,7 @@
 	</properties>
   
   	<build>
-		<finalName>api-videos</finalName>
+		<finalName>mbtc-watson-assistant-server</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -38,7 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
 
-    _conversations.clear();
+    //_conversations.clear();
 
     return Material(
       child: Container(
@@ -228,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
     await _watsonAssistantService.postMessage(message: Message(text: message, execAudio: false, sessionId: sessionId))
         .then((msg) {
         if(msg != null)
-          setState( () => _conversations.add({ 'assistant': msg.text}) );
+          setState(() => _conversations.add({ 'assistant': msg.text}));
         else
           loadSession();
     });
